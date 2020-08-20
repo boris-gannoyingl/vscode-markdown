@@ -55,9 +55,16 @@ async function print(type: string) {
         outPath += `.${type}`;
     }
 
-    let title = doc.getText().split(/\r?\n/g).find(lineText => lineText.startsWith('#'));
+    let titleTemp = doc.getText().split(/\r?\n/g);
+    let title = titleTemp.find(lineText => lineText.startsWith('<!-- title:'));
     if (title) {
-        title = title.replace(/^#+/, '').replace(/#+$/, '').trim();
+        title = title.replace(/<!-- title:(.+?)-->/, '$1').trim();
+    }
+    else {
+        title = titleTemp.find(lineText => lineText.startsWith('#'));
+        if (title) {
+            title = title.replace(/^#+/, '').replace(/#+$/, '').trim();
+        }
     }
 
     let body: string = await mdEngine.render(doc.getText(), workspace.getConfiguration('markdown.preview', doc.uri));
